@@ -1,0 +1,111 @@
+Resources:
+  MyFunctionServiceRole3C357FF2:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - lambda.
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: CdkCweExampleStack/MyFunction/ServiceRole/Resource
+  MyFunctionServiceRoleDefaultPolicyB705ABD4:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: s3:ListBucket
+            Effect: Allow
+            Resource: arn:aws:s3:::fsd-tmp
+        Version: "2012-10-17"
+      PolicyName: MyFunctionServiceRoleDefaultPolicyB705ABD4
+      Roles:
+        - Ref: MyFunctionServiceRole3C357FF2
+    Metadata:
+      aws:cdk:path: CdkCweExampleStack/MyFunction/ServiceRole/DefaultPolicy/Resource
+  MyFunction3BAA72D1:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: MyFunctionCodeS3Bucket2C57E8FB
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: MyFunctionCodeS3VersionKeyDE72F98E
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: MyFunctionCodeS3VersionKeyDE72F98E
+      Handler: app.handler
+      Role:
+        Fn::GetAtt:
+          - MyFunctionServiceRole3C357FF2
+          - Arn
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          S3_BUCKET: fsd-tmp
+    DependsOn:
+      - MyFunctionServiceRoleDefaultPolicyB705ABD4
+      - MyFunctionServiceRole3C357FF2
+    Metadata:
+      aws:cdk:path: CdkCweExampleStack/MyFunction/Resource
+      aws:asset:path: /Users/fsd/src/serverless/demos/cdk/cdk-cwe-example/my_function
+      aws:asset:property: Code
+  MyFunctionAllowEventRuleCdkCweExampleStackMyScheduleE336F88BAC50A34F:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - MyFunction3BAA72D1
+          - Arn
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - MySchedule8CBD34AD
+          - Arn
+    Metadata:
+      aws:cdk:path: CdkCweExampleStack/MyFunction/AllowEventRuleCdkCweExampleStackMyScheduleE336F88B
+  MySchedule8CBD34AD:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - MyFunction3BAA72D1
+              - Arn
+          Id: CdkCweExampleStackMyFunction7C43F8CC
+    Metadata:
+      aws:cdk:path: CdkCweExampleStack/MySchedule/Resource
+Parameters:
+  MyFunctionCodeS3Bucket2C57E8FB:
+    Type: String
+    Description: S3 bucket for asset "CdkCweExampleStack/MyFunction/Code"
+  MyFunctionCodeS3VersionKeyDE72F98E:
+    Type: String
+    Description: S3 key for asset version "CdkCweExampleStack/MyFunction/Code"
+  MyFunctionCodeArtifactHashC252509F:
+    Type: String
+    Description: Artifact hash for asset "CdkCweExampleStack/MyFunction/Code"
+

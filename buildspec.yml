@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm install -g npm
+      - npm install -g aws-cdk
+      - npm ci
+  build:
+    commands:
+      - cdk synth -o build -c S3_BUCKET=$(S3_BUCKET)
+artifacts:
+  files:
+    - build/*
+  discard-paths: yes

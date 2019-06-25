@@ -1,4 +1,4 @@
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import lambda = require('@aws-cdk/aws-lambda');
 import iam = require('@aws-cdk/aws-iam');
 import events = require('@aws-cdk/aws-events');
@@ -9,7 +9,7 @@ export class CdkCweExampleStack extends cdk.Stack {
     super(scope, id, props);
 
     const handler = new lambda.Function(this, 'MyFunction', {
-      runtime: lambda.Runtime.Nodejs810,
+      runtime: lambda.Runtime.NODEJS_8_10,
       handler: 'app.handler',
       code: lambda.Code.asset('./my_function'),
       environment: {
@@ -23,7 +23,7 @@ export class CdkCweExampleStack extends cdk.Stack {
     }));
 
     new events.Rule(this, 'MySchedule', {
-      schedule: events.Schedule.rate(1, events.TimeUnit.Minute),
+      schedule: events.Schedule.rate(cdk.Duration.minutes(1)),
       targets: [
         new targets.LambdaFunction(handler)
       ]

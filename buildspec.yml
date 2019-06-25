@@ -10,7 +10,7 @@ phases:
       - npm ci
   build:
     commands:
-      - cdk synth -v -o build -c S3_BUCKET=$S3_BUCKET
+      - cdk synth -o build
 artifacts:
   files:
     - build/*

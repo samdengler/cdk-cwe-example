@@ -4,8 +4,12 @@ import iam = require('@aws-cdk/aws-iam');
 import events = require('@aws-cdk/aws-events');
 import targets = require('@aws-cdk/aws-events-targets');
 
+interface MyStackProps extends cdk.StackProps {
+  s3Bucket: string;
+}
+
 export class CdkCweExampleStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, props: MyStackProps) {
     super(scope, id, props);
 
     const handler = new lambda.Function(this, 'MyFunction', {
@@ -13,12 +17,12 @@ export class CdkCweExampleStack extends cdk.Stack {
       handler: 'app.handler',
       code: lambda.Code.asset('./my_function'),
       environment: {
-        S3_BUCKET: this.node.tryGetContext('S3_BUCKET')
+        S3_BUCKET: props.s3Bucket
       }
     });
 
     handler.addToRolePolicy(new iam.PolicyStatement({
-      resources: [`arn:aws:s3:::${this.node.tryGetContext('S3_BUCKET')}`],
+      resources: [`arn:aws:s3:::${props.s3Bucket}`],
       actions: ['s3:ListBucket']
     }));
 

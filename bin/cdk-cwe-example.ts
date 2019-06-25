@@ -4,4 +4,5 @@ import cdk = require('@aws-cdk/cdk');
 import { CdkCweExampleStack } from '../lib/cdk-cwe-example-stack';
 
 const app = new cdk.App();
-new CdkCweExampleStack(app, 'CdkCweExampleStack');
+
+new CdkCweExampleStack(app, 'dev');

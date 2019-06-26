@@ -9,13 +9,16 @@ interface MyStackProps extends cdk.StackProps {
 }
 
 export class CdkCweExampleStack extends cdk.Stack {
+  lambdaCode: lambda.CfnParametersCode;
+
   constructor(scope: cdk.Construct, id: string, props: MyStackProps) {
     super(scope, id, props);
 
+    this.lambdaCode = lambda.Code.cfnParameters();
     const handler = new lambda.Function(this, 'MyFunction', {
       runtime: lambda.Runtime.NODEJS_8_10,
       handler: 'app.handler',
-      code: lambda.Code.asset('./my_function'),
+      code: this.lambdaCode,
       environment: {
         S3_BUCKET: props.s3Bucket
       }

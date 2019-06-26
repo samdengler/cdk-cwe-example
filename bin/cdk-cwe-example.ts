@@ -2,14 +2,16 @@
 import 'source-map-support/register';
 import cdk = require('@aws-cdk/core');
 import { CdkCweExampleStack } from '../lib/cdk-cwe-example-stack';
+import { CodePipelineStack } from '../lib/code-pipeline-stack';
 
 const app = new cdk.App();
 
-new CdkCweExampleStack(app, 'dev', {
-  env: { account: '375027758210', region: 'us-east-1' },
+const devStack = new CdkCweExampleStack(app, 'DevStack', {
   s3Bucket: 'fsd-demo-dev'
 });
 
-// new CdkCweExampleStack(app, 'prod', {
-//   s3Bucket: 'fsd-demo-prod'
-// });
+new CodePipelineStack(app, 'CodePipelineStack', {
+  lambdaCode: {
+    dev: devStack.lambdaCode
+  }
+});

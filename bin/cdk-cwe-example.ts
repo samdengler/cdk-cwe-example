@@ -10,8 +10,13 @@ const devStack = new CdkCweExampleStack(app, 'DevStack', {
   s3Bucket: 'fsd-demo-dev'
 });
 
+const prodStack = new CdkCweExampleStack(app, 'ProdStack', {
+  s3Bucket: 'fsd-demo-prod'
+});
+
 new CodePipelineStack(app, 'CodePipelineStack', {
   lambdaCode: {
-    dev: devStack.lambdaCode
+    dev: devStack.lambdaCode,
+    prod: prodStack.lambdaCode,
   }
 });

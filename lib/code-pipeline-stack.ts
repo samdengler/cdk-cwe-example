@@ -43,7 +43,10 @@ export class CodePipelineStack extends cdk.Stack {
         },
         artifacts: {
           'base-directory': 'build',
-          files: 'DevStack.template.json'
+          files: [
+            'DevStack.template.json',
+            'ProdStack.template.json',
+          ]
         }
       })
     });
@@ -95,6 +98,19 @@ export class CodePipelineStack extends cdk.Stack {
         lambdaBuildOutput,
       ]
     });
+
+    const deployProdAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
+      actionName: 'CFN_Deploy_Prod',
+      stackName: 'ProdMyFunctionStack',
+      templatePath: cdkBuildOutput.atPath('ProdStack.template.json'),
+      adminPermissions: true,
+      parameterOverrides: {
+        ...props.lambdaCode.prod.assign(lambdaBuildOutput.s3Location),
+      },
+      extraInputs: [
+        lambdaBuildOutput,
+      ]
+    });
   
     new codepipeline.Pipeline(this, 'MyPipeline', {
       stages: [
@@ -109,6 +125,10 @@ export class CodePipelineStack extends cdk.Stack {
         {
           stageName: 'DeployDev',
           actions: [ deployDevAction ]
+        },
+        {
+          stageName: 'DeployProd',
+          actions: [ deployProdAction ]
         },
       ]
     });

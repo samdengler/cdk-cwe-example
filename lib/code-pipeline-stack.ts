@@ -111,6 +111,10 @@ export class CodePipelineStack extends cdk.Stack {
         lambdaBuildOutput,
       ]
     });
+
+    const manualApprovalAction = new codepipeline_actions.ManualApprovalAction({
+      actionName: 'ManualApproval'
+    });
   
     new codepipeline.Pipeline(this, 'MyPipeline', {
       stages: [
@@ -125,6 +129,10 @@ export class CodePipelineStack extends cdk.Stack {
         {
           stageName: 'DeployDev',
           actions: [ deployDevAction ]
+        },
+        {
+          stageName: 'ManualApproval',
+          actions: [ manualApprovalAction ]
         },
         {
           stageName: 'DeployProd',
